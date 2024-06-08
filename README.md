@@ -7,3 +7,16 @@ Useful tools and scripts for forensics investigations.
 
 JSON Crack => Data into Clarity with Powerful Visualization (CSV, XML, JSON, YAML) 
 --Nice tool for visualisation
+
+
+
+Dynamic analysis
+
+Sysinternals
+
+--> Process Monitor
+--> TCP View
+--> Autoruns 
+
+
+-- > ProcDOT
