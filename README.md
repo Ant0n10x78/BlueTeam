@@ -1,57 +1,92 @@
 # Forensic
 
-Useful tools and scripts for forensics investigations.
+A collection of essential tools and scripts to support forensic investigations, including data visualization, dynamic analysis, system monitoring, and registry examination tools.
 
+---
 
-#Other
+## Table of Contents
+- [Visualization](#visualization)
+- [Dynamic Analysis](#dynamic-analysis)
+- [System Monitoring (Sysinternals)](#system-monitoring-sysinternals)
+- [EZ Tools Suite](#ez-tools-suite)
+- [Memory Forensics (Volatility3)](#memory-forensics-volatility3)
+- [USB Device Lookup](#usb-device-lookup)
 
-JSON Crack => Data into Clarity with Powerful Visualization (CSV, XML, JSON, YAML) 
---Nice tool for visualisation
+---
 
+## Visualization
 
+**[JSON Crack](https://jsoncrack.com)**  
+Turn data into clarity with powerful visualization. Supports various formats:
+- CSV
+- XML
+- JSON
+- YAML
 
-Dynamic analysis
+---
 
+## Dynamic Analysis
 
---> PEiD : detects most common packers, cryptors and compilers for PE files
+Dynamic analysis tools for inspecting executables and identifying potential malware behaviors.
 
---> UPX : UPX is a free, secure, portable, extendable, high-performance executable packer for several executable formats.
+- **PEiD**  
+  Detects common packers, cryptors, and compilers in PE (Portable Executable) files.
 
-Sysinternals
+- **UPX**  
+  A high-performance, free, and extendable executable packer compatible with various formats. Useful for unpacking and analyzing packed executables.
 
---> Process Monitor
---> TCP View
---> Autoruns 
+---
 
+## System Monitoring (Sysinternals)
 
--- > ProcDOT
+**Sysinternals** suite provides tools to monitor system activities and troubleshoot system-level issues in real-time.
 
---> Pestudio :  is a portable and free program which is able to examine executable files in depth. It supports both 32-bit and 64-bit EXE files.
+- **Process Monitor**  
+  Real-time file system, registry, and process/thread activity.
 
+- **TCP View**  
+  Lists all TCP and UDP endpoints on your system, showing local and remote addresses and the state of TCP connections.
 
+- **Autoruns**  
+  Shows programs configured to run during system bootup or login, providing insight into potential persistence mechanisms.
 
-EZ Tools suite 
+- **ProcDOT**  
+  Analyzes and visualizes malicious process activity by connecting events with network traces.
 
---> Registry Explorer : After opening the registry.LOG file often locate in "C/Windows/System32/conf". In top left the section "Available Bookmarks" helps to easily naviguate on the different reg values and information.
-In the section "Available Bookmarks", the field "MountedDevices" show the drive letter associated to the mounted device.
-Related challenges : Masquerade (BTLO)
+- **Pestudio**  
+  Examines executable files (32-bit and 64-bit) in depth without executing them, ideal for portable and lightweight file inspection.
 
---> ShellBags Explorer : 
+---
 
+## EZ Tools Suite
 
+A suite of tools to simplify registry analysis and provide insights into Windows registry artifacts.
 
-Volatility3
+- **Registry Explorer**  
+  Open and explore `registry.LOG` files (commonly located at `C:/Windows/System32/config`). The "Available Bookmarks" section provides easy navigation across registry values, with a focus on forensic insights.  
+  - **MountedDevices**: Displays drive letters associated with mounted devices.
+  - Related Forensic Challenge: **Masquerade** (BTLO).
 
-Use moddump <offset> to dump a process
+- **ShellBags Explorer**  
+  A tool to investigate Windows ShellBags, useful for determining folder access history and user activity.
 
+---
 
+## Memory Forensics (Volatility3)
 
-USB lookup 
+**Volatility3** is a powerful tool for memory analysis. Useful commands include:
 
-Usefull to get more information on the usb devices:
-https://the-sz.com/products/usbid/
+- `moddump <offset>`: Dumps a specific process from memory for further examination.
 
+---
 
+## USB Device Lookup
 
+Quickly identify USB devices with detailed information on make and model:
 
+- **[USB ID Database](https://the-sz.com/products/usbid/)**  
+  A helpful resource to investigate USB device history and attributes, including vendor and product details.
 
+---
+
+> **Note:** For more specific forensic challenges and examples, please refer to individual tool documentation.
