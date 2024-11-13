@@ -58,7 +58,7 @@ Dynamic analysis tools for inspecting executables and identifying potential malw
 
 ---
 
-## EZ Tools Suite
+## EZ Tools Suite (a book is available eztoolsmanuals.pdf)
 
 A suite of tools to simplify registry analysis and provide insights into Windows registry artifacts.
 
