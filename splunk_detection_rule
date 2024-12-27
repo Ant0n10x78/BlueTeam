@@ -1,4 +1,6 @@
-Tactique : Initial Access
+##########
+Tactique : Initial Access (TA0001)
+##########
 Zero Logon
 Permet la compromission initiale d’un compte machine (local_system). Peut également être utilisé pour Credential Access et Privilege Escalation.
 
@@ -34,7 +36,11 @@ index="your index name here" source=WinEventLog:Security TaskCategory=Logon Keyw
 | eval password=if(match(User_Name, "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[\W])(?=.{10,})"), "Yes", "No") 
 | stats count by password User_Name 
 | search password=Yes
-Tactique : Persistence
+
+
+##########
+Tactique : Persistence (TA0003)
+##########
 New Service Installation on Windows
 Détecte l'installation de nouveaux services, potentiellement malveillants.
 
@@ -43,7 +49,11 @@ index="your index name here" sourcetype=WinEventLog:Security (EventCode=4697 OR 
 | eval Date=strftime(_time,"%Y/%m/%d") 
 | eval Status=coalesce(Keywords,Type) 
 | stats count by Date, Service_Name, Service_File_Name, Service_Account, host, Status
-Tactique : Privilege Escalation
+
+
+##########
+Tactique : Privilege Escalation (TA0004)
+##########
 Changes to Windows User Group by Account
 Détecte des modifications des groupes d’utilisateurs par un compte. Peut également relever de Defense Evasion.
 
@@ -62,7 +72,11 @@ Détecte des événements liés à une élévation de privilèges.
 spl
 index="your index name here" sourcetype="WinEventLog:Security" (EventCode=576 OR EventCode=4672 OR EventCode=577 OR EventCode=4673 OR EventCode=578 OR EventCode=4674) 
 | stats count by user
-Tactique : Defense Evasion
+
+
+##########
+Tactique : Defense Evasion (TA0005)
+##########
 See When Windows Audit Logs Are Cleared
 Permet de détecter des suppressions des journaux d’audit.
 
@@ -72,7 +86,11 @@ index="your index name here" source=WinEventLog:security (EventCode=1102 OR Even
 | stats count by Client_User_Name, host, index, Date 
 | sort - Date 
 | rename Client_User_Name as "Account Name"
-Tactique : Discovery
+
+##########
+Tactique : Discovery (TA0007)
+##########
+
 Number of Accounts Created in Windows Environment
 Permet d’observer les comptes créés dans un environnement Windows.
 
@@ -96,7 +114,10 @@ index="your index name here" source=WinEventLog:Security sourcetype=WinEventLog:
 | rex "Failed:\s+.*\s+Account\sName:\s+(?<TargetAccount>\S+)\s" 
 | stats count by Date, TargetAccount, Failure_Reason, host 
 | sort - Date
-Tactique : Collection
+
+##########
+Tactique : Collection (TA0009)
+##########
 Successful File Access (must have object access auditing enabled)
 Détecte l’accès réussi à des fichiers spécifiques.
 
@@ -106,7 +127,10 @@ index="your index name here" sourcetype=WinEventLog (Relative_Target_Name!="\\""
 | stats count by Relative_Target_Name, user, _time, status 
 | rename _time as Day 
 | convert ctime(Day)
-Tactique : Exfiltration
+
+##########
+Tactique : Exfiltration (TA0010)
+##########
 File Deletion Attempts
 Détecte des tentatives de suppression de fichiers.
 
@@ -115,7 +139,11 @@ index="your index name here" sourcetype="WinEventLog:Security" EventCode=564
 | eval Date=strftime(_time, "%Y/%m/%d") 
 | stats count by Date, Image_File_Name, Type, host 
 | sort - Date
-Tactique : Impact
+
+
+##########
+Tactique : Impact (TA0040)
+##########
 Account Deleted Within 24 Hours of Creation
 Détecte la suppression rapide de comptes créés.
 
