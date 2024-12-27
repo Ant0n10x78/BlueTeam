@@ -1,11 +1,134 @@
-
-
+Tactique : Initial Access
 Zero Logon
+Permet la compromission initiale d’un compte machine (local_system). Peut également être utilisé pour Credential Access et Privilege Escalation.
 
-'''splunk
+spl
 index="your index name here" (sourcetype="<windows_sourcetype_security>" OR source="windows_source_security") EventCode="4742" OR EventCode="4624" AND (src_user="*anonymous*" OR member_id="*S-1-0*")
 | eval local_system=mvindex(upper(split(user,"$")),0)
 | search host=local_system
 | table _time EventCode dest host ComputerName src_user Account_Name local_system user Security_ID member_id src_nt_domain dest_nt_domain
+Tactique : Credential Access
+Username Guessing Brute Force Attack
+Détecte des attaques de force brute sur des noms d'utilisateur.
 
+spl
+index="your index name here" sourcetype=windows EventCode=4625 OR EventCode=4624 
+| bin _time span=5m as minute 
+| rex "Security ID:\s*\w*\s*\w*\s*Account Name:\s*(?<username>.*)\s*Account Domain:" 
+| stats count(Keywords) as Attempts,
+count(eval(match(Keywords,"Audit Failure"))) as Failed,
+count(eval(match(Keywords,"Audit Success"))) as Success by minute username
+| where Failed>=4
+| stats dc(username) as Total by minute 
+| where Total>5
+PTH Detection
+Détection de l’utilisation d’attaques Pass-The-Hash via NTLM. Peut également être utilisé pour Lateral Movement.
 
+spl
+index="your index name here" ( EventCode=4624 Logon_Type=3 ) OR ( EventCode=4625 Logon_Type=3 ) Authentication_Package="NTLM" NOT Account_Domain=YOURDOMAIN NOT Account_Name="ANONYMOUS LOGON"
+Find Passwords Entered As Usernames
+Détecte des mots de passe potentiels entrés en tant que noms d’utilisateur.
+
+spl
+index="your index name here" source=WinEventLog:Security TaskCategory=Logon Keywords="Audit Failure" 
+| eval password=if(match(User_Name, "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[\W])(?=.{10,})"), "Yes", "No") 
+| stats count by password User_Name 
+| search password=Yes
+Tactique : Persistence
+New Service Installation on Windows
+Détecte l'installation de nouveaux services, potentiellement malveillants.
+
+spl
+index="your index name here" sourcetype=WinEventLog:Security (EventCode=4697 OR EventCode=601) 
+| eval Date=strftime(_time,"%Y/%m/%d") 
+| eval Status=coalesce(Keywords,Type) 
+| stats count by Date, Service_Name, Service_File_Name, Service_Account, host, Status
+Tactique : Privilege Escalation
+Changes to Windows User Group by Account
+Détecte des modifications des groupes d’utilisateurs par un compte. Peut également relever de Defense Evasion.
+
+spl
+index="your index name here" sourcetype=WinEventLog:Security (EventCode=4728 OR EventCode=4732 OR EventCode=4746 OR EventCode=4751 OR EventCode=4756 OR EventCode=4161 OR EventCode=4185) 
+| eval Date=strftime(_time, "%Y/%m/%d") 
+| rex "Member:\s+\w+\s\w+:.*\\\(?<TargetAccount>.*)" 
+| rex "Account\sName:\s+(?<SourceAccount>.*)" 
+| stats count by Date, TargetAccount, SourceAccount, Group_Name, host, Keywords 
+| sort - Date 
+| rename SourceAccount as "Administrator Account" 
+| rename TargetAccount as "Target Account"
+Privilege Escalation Detection
+Détecte des événements liés à une élévation de privilèges.
+
+spl
+index="your index name here" sourcetype="WinEventLog:Security" (EventCode=576 OR EventCode=4672 OR EventCode=577 OR EventCode=4673 OR EventCode=578 OR EventCode=4674) 
+| stats count by user
+Tactique : Defense Evasion
+See When Windows Audit Logs Are Cleared
+Permet de détecter des suppressions des journaux d’audit.
+
+spl
+index="your index name here" source=WinEventLog:security (EventCode=1102 OR EventCode=517) 
+| eval Date=strftime(_time, "%Y/%m/%d") 
+| stats count by Client_User_Name, host, index, Date 
+| sort - Date 
+| rename Client_User_Name as "Account Name"
+Tactique : Discovery
+Number of Accounts Created in Windows Environment
+Permet d’observer les comptes créés dans un environnement Windows.
+
+spl
+index="your index name here" sourcetype=WinEventLog:Security (EventCode=624 OR EventCode=4720) 
+| eval NewAccount=case(EventCode=624, "New Account Created", EventCode=4720, "New Account Created") 
+| stats count(NewAccount) as creation 
+| gauge creation 1 5 15 25
+Tactique : Lateral Movement
+PTH Detection
+Détection d’activités de type Pass-The-Hash.
+
+spl
+index="your index name here" ( EventCode=4624 Logon_Type=3 ) OR ( EventCode=4625 Logon_Type=3 ) Authentication_Package="NTLM" NOT Account_Domain=YOURDOMAIN NOT Account_Name="ANONYMOUS LOGON"
+Failed RDP Attempt
+Identifie des tentatives d’accès RDP échouées.
+
+spl
+index="your index name here" source=WinEventLog:Security sourcetype=WinEventLog:security Logon_Type=10 EventCode=4625 
+| eval Date=strftime(_time, "%Y/%m/%d") 
+| rex "Failed:\s+.*\s+Account\sName:\s+(?<TargetAccount>\S+)\s" 
+| stats count by Date, TargetAccount, Failure_Reason, host 
+| sort - Date
+Tactique : Collection
+Successful File Access (must have object access auditing enabled)
+Détecte l’accès réussi à des fichiers spécifiques.
+
+spl
+index="your index name here" sourcetype=WinEventLog (Relative_Target_Name!="\\""" Relative_Target_Name!="*.ini") user!="*$" 
+| bucket span=1d _time 
+| stats count by Relative_Target_Name, user, _time, status 
+| rename _time as Day 
+| convert ctime(Day)
+Tactique : Exfiltration
+File Deletion Attempts
+Détecte des tentatives de suppression de fichiers.
+
+spl
+index="your index name here" sourcetype="WinEventLog:Security" EventCode=564 
+| eval Date=strftime(_time, "%Y/%m/%d") 
+| stats count by Date, Image_File_Name, Type, host 
+| sort - Date
+Tactique : Impact
+Account Deleted Within 24 Hours of Creation
+Détecte la suppression rapide de comptes créés.
+
+spl
+index="your index name here" sourcetype=WinEventLog:Security (EventCode=4726 OR EventCode=4720) 
+| eval Date=strftime(_time, "%Y/%m/%d") 
+| rex "Subject:\s+\w+\s\S+\s+\S+\s+\w+\s\w+:\s+(?<SourceAccount>\S+)" 
+| rex "Target\s\w+:\s+\w+\s\w+:\s+\S+\s+\w+\s\w+:\s+(?<DeletedAccount>\S+)" 
+| rex "New\s\w+:\s+\w+\s\w+:\s+\S+\s+\w+\s\w+:\s+(?<NewAccount>\S+)" 
+| eval SuspectAccount=coalesce(DeletedAccount,NewAccount) 
+| transaction SuspectAccount startswith="EventCode=4720" endswith="EventCode=4726" 
+| eval duration=round(((duration/60)/60)/24, 2) 
+| eval Age=case(duration<=1, "Critical", duration>1 AND duration<=7, "Warning", duration>7, "Normal")
+| table Date, index, host, SourceAccount, SuspectAccount, duration, Age 
+| rename duration as "Days Account was Active" 
+| sort + "Days Account was Active"
