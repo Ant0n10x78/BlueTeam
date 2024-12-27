@@ -1,0 +1,11 @@
+
+
+Zero Logon
+
+'''splunk
+index="your index name here" (sourcetype="<windows_sourcetype_security>" OR source="windows_source_security") EventCode="4742" OR EventCode="4624" AND (src_user="*anonymous*" OR member_id="*S-1-0*")
+| eval local_system=mvindex(upper(split(user,"$")),0)
+| search host=local_system
+| table _time EventCode dest host ComputerName src_user Account_Name local_system user Security_ID member_id src_nt_domain dest_nt_domain
+
+
