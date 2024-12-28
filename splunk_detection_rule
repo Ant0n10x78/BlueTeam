@@ -50,6 +50,16 @@ index="your index name here" sourcetype=WinEventLog:Security (EventCode=4697 OR 
 | eval Status=coalesce(Keywords,Type) 
 | stats count by Date, Service_Name, Service_File_Name, Service_Account, host, Status
 
+Creation of new file
+Détecte la création de nouveau fichier //sysmon and windows event security
+//Event ID 4656 is logged when an application attempts to access a file or directory. (IT may generate a lot of FP)
+
+spl
+index="your index name here" sourcetype=WinEventLog:Security (EventCode=11 OR EventCode=4656) 
+| eval Date=strftime(_time,"%Y/%m/%d") 
+| eval Status=coalesce(Keywords,Type) 
+| stats count by Date, Service_Name, Service_File_Name, Service_Account, host, Status
+
 
 ##########
 Tactique : Privilege Escalation (TA0004)
