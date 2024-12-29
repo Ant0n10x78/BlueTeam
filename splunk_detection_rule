@@ -41,6 +41,9 @@ index="your index name here" source=WinEventLog:Security TaskCategory=Logon Keyw
 Tactique : Execution (TA0002)
 ##########
 
+Relevant link for testing rule:
+https://attack.mitre.org/techniques/T1059/001/
+
 DS0017
 Monitor command-line arguments for script execution and subsequent behavior
 
