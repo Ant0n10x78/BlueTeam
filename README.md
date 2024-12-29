@@ -42,7 +42,7 @@ Dynamic analysis tools for inspecting executables and identifying potential malw
 **Sysinternals** suite provides tools to monitor system activities and troubleshoot system-level issues in real-time.
 
 - **Process Monitor**  
-  Real-time file system, registry, and process/thread activity.
+  Real-time file system, registry, and process/thread activity. (Analysis malware : https://www.youtube.com/watch?v=GpUIcYbOigg)
 
 - **TCP View**  
   Lists all TCP and UDP endpoints on your system, showing local and remote addresses and the state of TCP connections.
