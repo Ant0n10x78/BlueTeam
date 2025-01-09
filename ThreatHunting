@@ -1,0 +1,14 @@
+
+### Chainsaw ###
+
+Rapidly Search and Hunt through Windows Forensic Artefacts
+  -  Chainsaw : https://github.com/WithSecureLabs/chainsaw
+
+Below some commands to use Chainsaw efficiently:
+  -  sudo ./chainsaw hunt evtx_attack_samples/ 
+
+We can add SIGMA rules to chainsaw:
+  -  sudo ./chainsaw hunt evtx_attack_samples/ --rules sigma_rules/ --mapping mapping_files/sigma-mapping.yml > output2.txt
+
+####################
+
